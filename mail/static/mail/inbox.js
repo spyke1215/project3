@@ -46,10 +46,10 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
-  // Show the mailbox name
-  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  if (mailbox === 'inbox' || 'sent' || 'archive') { // This is for getting the all mail
 
-  if (mailbox === 'inbox' || 'sent' || 'archive') {
+    // Show the mailbox name
+    document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
     fetch(`/emails/${mailbox}`)
     .then(response => response.json())
@@ -59,18 +59,17 @@ function load_mailbox(mailbox) {
 
     });
 
-  }else{
+  }else{ // This is for ID of the mail
 
     fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(email => {
         // Print email
         console.log(email);
-        // ... do something else with email ...
+        document.querySelector('#emails-view').append(email);
     });
 
   }
-  
 
 }
 
@@ -80,9 +79,8 @@ function add_mail(contents){
   const mail = document.createElement('div');
   mail.className = 'mail';
   mail.innerHTML = `${contents.sender} ${contents.subject} ${contents.timestamp}`;
-  mail.addEventListener('click', function() {
-    console.log("clicked")
-  });
+  
+  mail.addEventListener('click', () => load_mailbox(contents.id));
   
   // Add mail to DOM
   document.querySelector('#emails-view').append(mail);
