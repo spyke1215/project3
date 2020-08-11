@@ -55,7 +55,18 @@ function load_mailbox(mailbox) {
       // Print emails
       console.log(emails);
 
-      //TODO... do something else with emails ...
+      emails.forEach(add_mail)
   });
 
 }
+
+function add_mail(contents){
+
+  // Create new mail
+  const mail = document.createElement('div');
+  mail.className = 'mail';
+  mail.innerHTML = contents.sender;
+
+  // Add mail to DOM
+  document.querySelector('#emails-view').append(mail);
+};
