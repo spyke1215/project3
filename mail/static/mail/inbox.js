@@ -74,114 +74,113 @@ function load_mailbox(mailbox) {
 
   clearBox('mail-view')
 
-  if (mailbox === 'inbox' || mailbox === 'sent' || mailbox ===  'archive') { // This is for getting the all mail
+  // Show the mailbox and hide other views
+  document.querySelector('#emails-view').style.display = 'block';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#mail-view').style.display = 'none';
 
-    // Show the mailbox and hide other views
-    document.querySelector('#emails-view').style.display = 'block';
-    document.querySelector('#compose-view').style.display = 'none';
-    document.querySelector('#mail-view').style.display = 'none';
+  // Show the mailbox name
+  document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-    // Show the mailbox name
-    document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
 
-    fetch(`/emails/${mailbox}`)
-    .then(response => response.json())
-    .then(emails => {
+    emails.forEach(add_mail)
 
-      emails.forEach(add_mail)
-
-    });
-
-  }else if (Number.isInteger(mailbox)) { // This is for ID of the mail
-    
-    document.querySelector('#mail-view').style.display = 'block';
-    document.querySelector('#emails-view').style.display = 'none';
-    document.querySelector('#compose-view').style.display = 'none';
-
-    fetch(`/emails/${mailbox}`)
-    .then(response => response.json())
-    .then(email => {
-
-      const mail = document.createElement('div');
-      mail.className = 'email';
-      mail.innerHTML = 
-      `
-      <b>FROM:</b> ${email.sender}<br>
-      <b>TO:</b> ${email.recipients}<br>
-      <b>SUBJECT:</b> ${email.subject}<br>
-      <b>TIMESTAMP:</b>${email.timestamp}<br>
-      <button id="reply" class="btn btn-outline-primary">Reply</button>
-      <button id="archive" class="btn btn-outline-primary">Archive</button>
-      <hr>
-      ${email.body}
-      `;
-
-      document.querySelector('#mail-view').append(mail); //TODO repeating 
-
-      document.querySelector('#reply').addEventListener('click', function() {
-        reply_email(email.sender, email.subject, email.timestamp, email.body)
-      })
-
-      if (mailbox != 'sender'){
-        document.querySelector('#archive').addEventListener('click', function() {
-          if (mailbox === 'inbox'){
-            update_archive(email.id, true)
-          }else{
-            update_archive(email.id, false)
-          }
-        })
-      } else {
-        
-      }
-    
-    });
-
-  } else {
-    compose_email()
-  }
-}
-
-function clearBox(elementID)
-{
-  document.getElementById(elementID).innerHTML = "";
-}
-
-function add_mail(contents){
-
-  // Create new mail
-
-  const mail = document.createElement('div');
-  mail.className = `mail row`;
-  mail.innerHTML = 
-  `
-  <div class="col-3 sender">
-    <b>${contents.sender}</b> 
-  </div>
-  <div class="col-5 subject">
-    ${contents.subject} 
-  </div>
-  <div class="col-4 timestamp">
-    ${contents.timestamp}
-  </div>
-  `;
-
-  if (contents.read === true) {
-    mail.style.background = 'gray';
-  }else{
-    mail.style.background = 'white';
-  }
-  
-  mail.addEventListener('click', function() {
-    boolean = 'true'
-    if (contents.read === false){
-      update_read(contents.id)
-    }
-    load_mailbox(contents.id)
   });
 
-  document.querySelector('#emails-view').append(mail);
+  function add_mail(contents){
+
+    const mail = document.createElement('div');
+    mail.className = `mail row`;
+    mail.innerHTML = 
+    `
+    <div class="col-3 sender">
+      <b>${contents.sender}</b> 
+    </div>
+    <div class="col-5 subject">
+      ${contents.subject} 
+    </div>
+    <div class="col-4 timestamp">
+      ${contents.timestamp}
+    </div>
+    `;
+  
+    if (contents.read === true) {
+      mail.style.background = 'gray';
+    }else{
+      mail.style.background = 'white';
+    }
+    
+    mail.addEventListener('click', function() {
+      boolean = 'true'
+      if (contents.read === false){
+        update_read(contents.id)
+      }
+      load_mail(contents.id, mailbox)
+    });
+  
+    document.querySelector('#emails-view').append(mail);
+  
+  };
+}
+
+function load_mail(num, mailbox){
+
+  clearBox('mail-view')
+
+  document.querySelector('#mail-view').style.display = 'block';
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+
+  fetch(`/emails/${num}`)
+  .then(response => response.json())
+  .then(email => {
+
+    const mail = document.createElement('div');
+    mail.className = 'email';
+    mail.innerHTML = 
+    `
+    <b>FROM:</b> ${email.sender}<br>
+    <b>TO:</b> ${email.recipients}<br>
+    <b>SUBJECT:</b> ${email.subject}<br>
+    <b>TIMESTAMP:</b>${email.timestamp}<br>
+    <button id="reply" class="btn btn-outline-primary">Reply</button>
+    <button id="archive" class="btn btn-outline-primary">Archive</button>
+    <hr>
+    ${email.body}
+    `;
+
+    document.querySelector('#mail-view').append(mail);
+
+    document.querySelector('#reply').addEventListener('click', function() {
+      reply_email(email.sender, email.subject, email.timestamp, email.body)
+    })
+    
+    document.querySelector('#archive').addEventListener('click', function() {
+        update_archive(email.id, false)
+    });
+
+  });
 
 };
+
+function addButton(status) { 
+  
+    //if (status === 'archive') {
+    //  document.getElementById("#email").innerHTML +=  
+    //  
+    //} else {
+    //  document.getElementById("#email").innerHTML +=  
+    //  `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`; 
+    //}
+    
+}
+
+function clearBox(elementID){
+  document.getElementById(elementID).innerHTML = "";
+}
 
 function update_read(content) {
 
@@ -192,7 +191,7 @@ function update_read(content) {
     })
   })
   console.log("READ = TRUE")
-}
+};
 
 function update_archive(content, bool) {
 
@@ -203,4 +202,4 @@ function update_archive(content, bool) {
     })
   })
   console.log("ARCHIVE = TRUE")
-}
+};
