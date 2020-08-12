@@ -72,6 +72,8 @@ function reply_email(sender, subject, timestamp, body) {
 
 function load_mailbox(mailbox) {
 
+  clearBox('mail-view')
+
   if (mailbox === 'inbox' || mailbox === 'sent' || mailbox ===  'archive') { // This is for getting the all mail
 
     // Show the mailbox and hide other views
@@ -99,25 +101,38 @@ function load_mailbox(mailbox) {
     fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(email => {
-      
+
       const mail = document.createElement('div');
       mail.className = 'email';
       mail.innerHTML = 
       `
-      <b>FROM:</b>${email.sender}<br>
-      <b>TO:</b>${email.recipients}<br>
-      <b>SUBJECT:</b>${email.subject}<br>
+      <b>FROM:</b> ${email.sender}<br>
+      <b>TO:</b> ${email.recipients}<br>
+      <b>SUBJECT:</b> ${email.subject}<br>
       <b>TIMESTAMP:</b>${email.timestamp}<br>
-      <button id="reply" class="btn btn-outline-primary">reply</button>
+      <button id="reply" class="btn btn-outline-primary">Reply</button>
+      <button id="archive" class="btn btn-outline-primary">Archive</button>
       <hr>
       ${email.body}
       `;
 
-      document.querySelector('#mail-view').append(mail);
+      document.querySelector('#mail-view').append(mail); //TODO repeating 
 
       document.querySelector('#reply').addEventListener('click', function() {
         reply_email(email.sender, email.subject, email.timestamp, email.body)
       })
+
+      if (mailbox != 'sender'){
+        document.querySelector('#archive').addEventListener('click', function() {
+          if (mailbox === 'inbox'){
+            update_archive(email.id, true)
+          }else{
+            update_archive(email.id, false)
+          }
+        })
+      } else {
+        
+      }
     
     });
 
@@ -126,9 +141,15 @@ function load_mailbox(mailbox) {
   }
 }
 
+function clearBox(elementID)
+{
+  document.getElementById(elementID).innerHTML = "";
+}
+
 function add_mail(contents){
 
   // Create new mail
+
   const mail = document.createElement('div');
   mail.className = `mail row`;
   mail.innerHTML = 
@@ -136,10 +157,10 @@ function add_mail(contents){
   <div class="col-3 sender">
     <b>${contents.sender}</b> 
   </div>
-  <div class="col-4 subject">
+  <div class="col-5 subject">
     ${contents.subject} 
   </div>
-  <div class="col-5 timestamp">
+  <div class="col-4 timestamp">
     ${contents.timestamp}
   </div>
   `;
@@ -159,6 +180,7 @@ function add_mail(contents){
   });
 
   document.querySelector('#emails-view').append(mail);
+
 };
 
 function update_read(content) {
@@ -172,12 +194,12 @@ function update_read(content) {
   console.log("READ = TRUE")
 }
 
-function update_archive(content, boolean) {
+function update_archive(content, bool) {
 
   fetch(`/emails/${content}`, {
     method: 'PUT',
     body: JSON.stringify({
-        archived: boolean
+        archived: bool
     })
   })
   console.log("ARCHIVE = TRUE")
