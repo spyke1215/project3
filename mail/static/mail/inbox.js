@@ -38,7 +38,6 @@ function compose_email() {
         console.log(result);
     });
   }
-
 }
 
 function load_mailbox(mailbox) {
@@ -57,7 +56,7 @@ function load_mailbox(mailbox) {
     .then(response => response.json())
     .then(emails => {
 
-        emails.forEach(add_mail)
+      emails.forEach(add_mail)
 
     });
 
@@ -72,6 +71,7 @@ function load_mailbox(mailbox) {
     .then(email => {
       
       const mail = document.createElement('div');
+      mail.className = 'email';
       mail.innerHTML = 
       `
       <b>FROM:</b>${email.sender}<br>
@@ -82,22 +82,18 @@ function load_mailbox(mailbox) {
       <hr>
       ${email.body}
       `;
-      document.querySelector('#mail-view').append(mail);
+
+      document.querySelector('#mail-view').appendChild(mail);
 
     });
   }
-
 }
-
-function add_email(contents){
-  
-};
 
 function add_mail(contents){
 
   // Create new mail
   const mail = document.createElement('div');
-  mail.className = 'mail row';
+  mail.className = `mail row`;
   mail.innerHTML = 
   `
   <div class="col-3 sender">
@@ -111,14 +107,42 @@ function add_mail(contents){
   </div>
   `;
 
-  id = contents.id
+  if (contents.read === true) {
+    mail.style.background = 'gray';
+  }else{
+    mail.style.background = 'white';
+  }
   
   mail.addEventListener('click', function() {
-    load_mailbox(id)
+    boolean = 'true'
+    if (contents.read === false){
+      update_read(contents.id)
+    }
+    load_mailbox(contents.id)
   });
-  
+
   // Add mail to DOM
   document.querySelector('#emails-view').append(mail);
 };
 
+function update_read(content) {
 
+  fetch(`/emails/${content}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        read: true
+    })
+  })
+  console.log("READ = TRUE")
+}
+
+function update_archive(content, boolean) {
+
+  fetch(`/emails/${content}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+        archived: boolean
+    })
+  })
+  console.log("ARCHIVE = TRUE")
+}
