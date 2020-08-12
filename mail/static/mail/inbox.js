@@ -14,6 +14,7 @@ function compose_email() {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#mail-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Clear out composition fields
@@ -41,12 +42,13 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
-  
-  // Show the mailbox and hide other views
-  document.querySelector('#emails-view').style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
 
-  if (mailbox === 'inbox' || 'sent' || 'archive') { // This is for getting the all mail
+  if (mailbox === 'inbox' || mailbox === 'sent' || mailbox ===  'archive') { // This is for getting the all mail
+
+    // Show the mailbox and hide other views
+    document.querySelector('#emails-view').style.display = 'block';
+    document.querySelector('#compose-view').style.display = 'none';
+    document.querySelector('#mail-view').style.display = 'none';
 
     // Show the mailbox name
     document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
@@ -60,28 +62,63 @@ function load_mailbox(mailbox) {
     });
 
   }else{ // This is for ID of the mail
+    
+    document.querySelector('#mail-view').style.display = 'block';
+    document.querySelector('#emails-view').style.display = 'none';
+    document.querySelector('#compose-view').style.display = 'none';
 
     fetch(`/emails/${mailbox}`)
     .then(response => response.json())
     .then(email => {
-        // Print email
-        console.log(email);
-        document.querySelector('#emails-view').append(email);
-    });
+      
+      const mail = document.createElement('div');
+      mail.innerHTML = 
+      `
+      <b>FROM:</b>${email.sender}<br>
+      <b>TO:</b>${email.recipients}<br>
+      <b>SUBJECT:</b>${email.subject}<br>
+      <b>TIMESTAMP:</b>${email.timestamp}<br>
+      <button class="btn btn-outline-primary">reply</button>
+      <hr>
+      ${email.body}
+      `;
+      document.querySelector('#mail-view').append(mail);
 
+    });
   }
 
 }
+
+function add_email(contents){
+  
+};
 
 function add_mail(contents){
 
   // Create new mail
   const mail = document.createElement('div');
-  mail.className = 'mail';
-  mail.innerHTML = `${contents.sender} ${contents.subject} ${contents.timestamp}`;
+  mail.className = 'mail row';
+  mail.innerHTML = 
+  `
+  <div class="col-3 sender">
+    <b>${contents.sender}</b> 
+  </div>
+  <div class="col-4 subject">
+    ${contents.subject} 
+  </div>
+  <div class="col-5 timestamp">
+    ${contents.timestamp}
+  </div>
+  `;
+
+  id = contents.id
   
-  mail.addEventListener('click', () => load_mailbox(contents.id));
+  mail.addEventListener('click', function() {
+    load_mailbox(id)
+  });
   
   // Add mail to DOM
   document.querySelector('#emails-view').append(mail);
 };
+
+

@@ -6,5 +6,10 @@ textarea {
     border-color: black;
     border-style: solid; 
     border-width: 2px; 
-    padding: 10px;
+    padding: 10px 0;
+}
+
+.timestamp {
+    text-align: right;
+    color: gray;
 }
