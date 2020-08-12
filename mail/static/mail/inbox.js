@@ -219,5 +219,5 @@ function update_archive(content, bool) {
         archived: bool
     })
   })
-  console.log("ARCHIVE = TRUE")
+  load_mailbox('inbox')
 };
