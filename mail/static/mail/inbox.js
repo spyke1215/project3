@@ -147,20 +147,40 @@ function load_mail(num, mailbox){
     <b>SUBJECT:</b> ${email.subject}<br>
     <b>TIMESTAMP:</b>${email.timestamp}<br>
     <button id="reply" class="btn btn-outline-primary">Reply</button>
-    <button id="archive" class="btn btn-outline-primary">Archive</button>
-    <hr>
-    ${email.body}
     `;
 
-    document.querySelector('#mail-view').append(mail);
+    if (mailbox === 'inbox'){
+      mail.innerHTML +=
+      `<button id="archive" class="btn btn-outline-primary">Archive</button>`;
+    }else if (mailbox === 'archive'){
+      mail.innerHTML +=
+      `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`;
+    }
 
-    document.querySelector('#reply').addEventListener('click', function() {
-      reply_email(email.sender, email.subject, email.timestamp, email.body)
+    mail.innerHTML +=
+    `<hr>
+    ${email.body}
+    `;
+    
+    mail.addEventListener('click', event =>  {
+      
+      const element = event.target
+
+      if (element.id === 'reply'){
+        reply_email(email.sender, email.subject, email.timestamp, email.body)
+      }
+
+      if (element.id === 'archive'){
+        update_archive(email.id, true)
+      }
+
+      if (element.id === 'unarchive'){
+        update_archive(email.id, false)
+      }
+
     })
     
-    document.querySelector('#archive').addEventListener('click', function() {
-        update_archive(email.id, false)
-    });
+    document.querySelector('#mail-view').append(mail);
 
   });
 
@@ -168,13 +188,13 @@ function load_mail(num, mailbox){
 
 function addButton(status) { 
   
-    //if (status === 'archive') {
-    //  document.getElementById("#email").innerHTML +=  
-    //  
-    //} else {
-    //  document.getElementById("#email").innerHTML +=  
-    //  `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`; 
-    //}
+    if (status === 'archive') {
+      document.getElementById("#email").innerHTML +=  
+      `<button id="archive" class="btn btn-outline-primary">Archive</button>`;
+    } else {
+      document.getElementById("#email").innerHTML +=  
+      `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`; 
+    }
     
 }
 
