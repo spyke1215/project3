@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
+
+// Compose Email
 function compose_email() {
 
   // Show compose view and hide other views
@@ -40,6 +42,7 @@ function compose_email() {
     }
 }
 
+// Reply email
 function reply_email(sender, subject, timestamp, body) {
 
   // Show compose view and hide other views
@@ -70,9 +73,10 @@ function reply_email(sender, subject, timestamp, body) {
     }
 }
 
+// Load mailbox for inbox, sender and archive
 function load_mailbox(mailbox) {
 
-  clearBox('mail-view')
+  clearBox('mail-view') // Removing id 'mail-view' in HTML
 
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
@@ -107,18 +111,20 @@ function load_mailbox(mailbox) {
     </div>
     `;
   
-    if (contents.read === true) {
+    if (contents.read === true) { // Changing background colors for read and unread
       mail.style.background = 'gray';
     }else{
       mail.style.background = 'white';
     }
     
-    mail.addEventListener('click', function() {
-      boolean = 'true'
-      if (contents.read === false){
-        update_read(contents.id)
+    mail.addEventListener('click', function() { // Adding event listener for clicking the area
+
+      if (contents.read === false){  // if the mail is not read
+        update_read(contents.id) // then update the it to read
       }
-      load_mail(contents.id, mailbox)
+
+      load_mail(contents.id, mailbox) // Load the email 
+
     });
   
     document.querySelector('#emails-view').append(mail);
@@ -126,9 +132,10 @@ function load_mailbox(mailbox) {
   };
 }
 
+//load mail for certain id mail
 function load_mail(num, mailbox){
 
-  clearBox('mail-view')
+  clearBox('mail-view') // Removing id 'mail-view' in HTML
 
   document.querySelector('#mail-view').style.display = 'block';
   document.querySelector('#emails-view').style.display = 'none';
@@ -149,22 +156,22 @@ function load_mail(num, mailbox){
     <button id="reply" class="btn btn-outline-primary">Reply</button>
     `;
 
-    if (mailbox === 'inbox'){
+    if (mailbox === 'inbox'){ // If it's inbox, then add a archive button
       mail.innerHTML +=
       `<button id="archive" class="btn btn-outline-primary">Archive</button>`;
-    }else if (mailbox === 'archive'){
+    }else if (mailbox === 'archive'){ // Else if it's archive, then add a unarchive button
       mail.innerHTML +=
       `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`;
     }
 
-    mail.innerHTML +=
+    mail.innerHTML += // Adding <hr> and body of the email
     `<hr>
     ${email.body}
     `;
     
-    mail.addEventListener('click', event =>  {
+    mail.addEventListener('click', event =>  { // Adding event listener
       
-      const element = event.target
+      const element = event.target // This checks what id of the HTML that was clicked
 
       if (element.id === 'reply'){
         reply_email(email.sender, email.subject, email.timestamp, email.body)
@@ -186,22 +193,12 @@ function load_mail(num, mailbox){
 
 };
 
-function addButton(status) { 
-  
-    if (status === 'archive') {
-      document.getElementById("#email").innerHTML +=  
-      `<button id="archive" class="btn btn-outline-primary">Archive</button>`;
-    } else {
-      document.getElementById("#email").innerHTML +=  
-      `<button id="unarchive" class="btn btn-outline-primary">Unarchive</button>`; 
-    }
-    
-}
-
+// For clearing HTML
 function clearBox(elementID){
   document.getElementById(elementID).innerHTML = "";
 }
 
+// Updated if the email has been read
 function update_read(content) {
 
   fetch(`/emails/${content}`, {
@@ -213,6 +210,7 @@ function update_read(content) {
   console.log("READ = TRUE")
 };
 
+// Archive update. Can use true or false as a parameter
 function update_archive(content, bool) {
 
   fetch(`/emails/${content}`, {
